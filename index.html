@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>灵魂的自我探测卷 (AI 增强版)</title>
+  <style>
+    /* ... 所有的 CSS 样式 ... */
+    /* (此处省略所有样式，与
+       soul-quiz-ai.html 保持一致) */
+    body {
+      font-family: "Noto Serif SC", "Microsoft YaHei", serif;
+      background: #faf7f2;
+      color: #2c2c2c;
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 15px;
+      line-height: 1.8;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2em;
+      margin-bottom: 0.5em;
+      color: #333;
+    }
+    .question {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      transition: box-shadow 0.3s ease;
+    }
+    .question:hover {
+      box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+    }
+    .question h3 {
+      margin-bottom: 10px;
+      color: #000;
+    }
+    label {
+      display: block;
+      margin: 8px 0;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+    label:hover {
+      background: #f9f9f9;
+      transform: translateX(3px);
+    }
+    input[type="radio"] {
+      margin-right: 12px;
+      transform: scale(1.1);
+    }
+    button {
+      display: block;
+      margin: 40px auto;
+      padding: 14px 28px;
+      font-size: 1.1em;
+      background: #444;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+      font-family: "Noto Serif SC", serif;
+    }
+    button:hover {
+      background: #000;
+      transform: scale(1.03);
+    }
+    .result {
+      background: #fff;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .result h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    #loadingIndicator {
+      display: none;
+      text-align: center;
+      padding: 40px;
+    }
+    .loader {
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid #444;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1.5s linear infinite;
+      margin: 20px auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .summary-chart {
+      width: 100%;
+      background-color: #f1f1f1;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 15px;
+    }
+    .chart-bar {
+      padding: 8px 12px;
+      color: white;
+      font-weight: bold;
+      font-size: 0.9em;
+      white-space: nowrap;
+      transition: width 0.8s ease-out;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1) inset;
+    }
+    .ai-summary {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 2px dashed #eee;
+    }
+    .ai-summary h3 {
+      text-align: center;
+      font-size: 1.4em;
+      margin-bottom: 15px;
+    }
+    .ai-summary p {
+      background: #faf7f2;
+      padding: 20px;
+      border-radius: 8px;
+      line-height: 2;
+    }
+    .review-item {
+      font-size: 0.9em;
+      margin-bottom: 15px;
+      padding-left: 10px;
+      border-left: 3px solid #eee;
+    }
+    .review-item strong {
+      color: #333;
+    }
+    .review-item span {
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>灵魂的自我探测卷</h1>
+  <form id="soulForm"></form>
+
+  <div id="loadingIndicator">
+    <div class="loader"></div>
+    <p style="font-size: 1.1em;">正在连接宇宙智慧，分析您的灵魂画像...</p>
+    <p>请稍候，这可能需要几秒钟。</p>
+  </div>
+
+  <div id="result" class="result" style="display:none;"></div>
+
+  <script>
+    // ... const questions = [...] ...
+    // (此处省略所有问题数据，与
+    // soul-quiz-ai.html 保持一致)
+    const questions = [
+      {
+        title: "第一题：关于生命的证明",
+        desc: "如果生命是一场“存在”的证明题，你希望你的生命，最终证明了什么？",
+        options: [
+          { text: "A. 我来过，我战斗过。生命的意义在于燃烧与碰撞，哪怕最终如流星般短暂，也曾照亮过一片夜空。", type: "燃烧者" },
+          { text: "B. 我证明了“爱”是唯一的答案。我深刻地爱过，也被爱过，并让这个世界因我的爱而温暖了一点点。", type: "治愈者" },
+          { text: "C. 我证明了“我”的存在。我清晰地成为了我自己，没有活成任何其他人的复制品或影子。", type: "真我者" },
+          { text: "D. 我证明了“可能”的存在。我探索了生命的边界，无论是知识、艺术还是体验，我拓展了“人”所能及的范畴。", type: "探索者" }
+        ],
+        guide: "你生命最底层的驱动力——是征服、是爱、是自我，还是创造？"
+      },
+      {
+        title: "第二题：关于关系的温度",
+        desc: "在你所有的人际关系中，你认为最值得珍惜和维持的基石是什么？",
+        options: [
+          { text: "A. 深度理解：有人能穿透一切表象，真正理解你内心的波澜与褶皱。", type: "真我者" },
+          { text: "B. 绝对忠诚：无论发生什么，有人会坚定地站在你身边，给予无条件的信任与支持。", type: "治愈者" },
+          { text: "C. 共同成长：彼此激励，携手走过人生的不同阶段，见证了对方的蜕变与进化。", type: "探索者" },
+          { text: "D. 轻松快乐：相处时毫无压力，可以完全放松做自己，共享简单的愉悦。", type: "燃烧者" }
+        ],
+        guide: "你在关系中最深层的渴望与需求。"
+      },
+      {
+        title: "第三题：关于自我的内核",
+        desc: "当外界的一切——名誉、财富、关系——都被剥夺，你认为最后剩下的、唯一无法被夺走的会是什么？",
+        options: [
+          { text: "A. 我面对逆境的态度：我在绝境中展现的勇气、尊严和选择。", type: "燃烧者" },
+          { text: "B. 我曾经的创造：我留下的作品、思想或我曾带来的美好影响。", type: "探索者" },
+          { text: "C. 我体验过的爱与感动：那些深深烙印在灵魂里的温暖瞬间。", type: "治愈者" },
+          { text: "D. 我对自己的认知：无论外界如何，我对我是谁的坚信不疑。", type: "真我者" }
+        ],
+        guide: "你的核心身份认同与内在力量的源泉。"
+      },
+      {
+        title: "第四题：关于时间的印记",
+        desc: "你希望时间在你身上留下怎样的痕迹？",
+        options: [
+          { text: "A. 智慧的沟壑：眼神中透露出洞察世事的从容与通透。", type: "探索者" },
+          { text: "B. 故事的风霜：面容上刻满了丰富、曲折甚至痛苦的经历与传奇。", type: "燃烧者" },
+          { text: "C. 温柔的弧度：眉宇间依旧保留着对世界的善意与温暖的微笑。", type: "治愈者" },
+          { text: "D. 锐利的轮廓：气质中依然蕴含着不妥协的锋芒与独立的精神。", type: "真我者" }
+        ],
+        guide: "你如何看待成长、衰老与你所经历的时间。"
+      },
+      {
+        title: "第五题：关于世界的回响",
+        desc: "你认为个体与整个世界最理想的连接方式是什么？",
+        options: [
+          { text: "A. 成为一座灯塔：照亮一个领域或一群人，成为指引和榜样。", type: "燃烧者" },
+          { text: "B. 投入一池静水：专注内心修养，你的平静与丰盈本身就能影响周遭。", type: "治愈者" },
+          { text: "C. 掀起一阵波澜：挑战旧有规则，推动某些改变，哪怕充满争议。", type: "真我者" },
+          { text: "D. 融入一片森林：作为集体的一部分，与社群共同成就伟大。", type: "探索者" }
+        ],
+        guide: "你渴望以何种姿态存在于社会与历史之中。"
+      },
+      {
+        title: "第六题：关于“遗憾”的想象",
+        desc: "如果必须选择一种，你认为哪一种“遗憾”最不能被你的内心所接受？",
+        options: [
+          { text: "A. “我本可以更努力”——为错过了巅峰的风景。", type: "燃烧者" },
+          { text: "B. “我本可以更勇敢”——为错过了某个人或某种生活。", type: "探索者" },
+          { text: "C. “我本可以更珍惜”——为失去了才懂得宝贵的日常。", type: "治愈者" },
+          { text: "D. “我本可以更自我”——为顺从了他人而辜负了内心。", type: "真我者" }
+        ],
+        guide: "你潜意识里最害怕的，是哪种人生价值的缺失。"
+      },
+      {
+        title: "第七题：关于终局的意象",
+        desc: "当生命走向终点，你脑海中浮现的、最能代表你一生的画面会是？",
+        options: [
+          { text: "A. 一座攀登过的高峰：陡峭、艰险，但视野绝伦。", type: "燃烧者" },
+          { text: "B. 一条蜿蜒的溪流：宁静、滋养，沿途灌溉了生命。", type: "治愈者" },
+          { text: "C. 一场绚烂的烟火：短暂、耀眼，在最高点尽情绽放。", type: "探索者" },
+          { text: "D. 一本厚重的书籍：内容丰富，章节曲折，耐人寻味。", type: "真我者" }
+        ],
+        guide: "你对自己生命叙事整体风格的定义。"
+      },
+      {
+        title: "第八题：关于“自由”的定义",
+        desc: "对你而言，下列哪种状态最接近你心目中的“真正自由”？",
+        options: [
+          { text: "A. 选择的自由：拥有足够的能力和资源，可以对不想要的生活说“不”。", type: "真我S者" },
+          { text: "B. 时间的自由：能完全自主地支配自己的时间，而不被他人或事务捆绑。", type: "治愈者" },
+          { text: "C. 心灵的自由：内心没有枷锁、恐惧与执念，达到一种平和与超脱。", type: "探索者" },
+          { text: "D. 表达的自由：能够毫无顾忌地展现真实的自我，并创造自己想创造的东西。", type: "燃烧者" }
+        ],
+        guide: "你实现自我价值的最大前提是什么。"
+      },
+      {
+        title: "第九题：关于“来世”的隐喻",
+        desc: "如果存在某种形式的“来世”，但它不由神决定，而是由你今生的核心特质“吸引”而来，你希望那会是一个怎样的世界？",
+        options: [
+          { text: "A. 一个充满挑战与谜题的世界：需要无尽的智慧与勇气去探索。", type: "探索者" },
+          { text: "B. 一个极致和谐与美丽的世界：充满了艺术、爱与自然之美。", type: "治愈者" },
+          { text: "C. 一个绝对宁静与和平的世界：没有纷争，只有深度的冥想与安宁。", type: "真我者" },
+          { text: "D. 一个可以无限创造与构建的世界：思想能直接转化为现实。", type: "燃烧者" }
+        ],
+        guide: "你灵魂深处最本质的向往与乐趣来源。"
+      },
+      {
+        title: "第十题：最终的礼物",
+        desc: "在生命的最后，你只能留给世界一件礼物。它会是什么？",
+        options: [
+          { text: "A. 一个故事：你独一无二、充满启示的一生。", type: "探索者" },
+          { text: "B. 一种精神：你身上所体现的，如勇气、善良或坚韧的品质。", type: "燃烧者" },
+          { text: "C. 一份改变：你为这个世界带来的、切实的、积极的改善。", type: "真我者" },
+          { text: "D. 一份感受：你让某些人体验到的、无法磨灭的爱与温暖。", type: "治愈者" }
+        ],
+        guide: "你认为自己所能留下的、最宝贵的遗产是什么。"
+      }
+    ];
+
+    const form = document.getElementById("soulForm");
+    const resultDiv = document.getElementById("result");
+    const loadingIndicator = document.getElementById("loadingIndicator");
+
+    // 动态生成问题列表
+    questions.forEach((q, i) => {
+      const div = document.createElement("div");
+      div.className = "question";
+      div.innerHTML = `<h3>${q.title}</h3><p>${q.desc}</p>`;
+      q.options.forEach(opt => {
+        const id = `q${i}_${opt.text[0]}`;
+        div.innerHTML += `<label><input type="radio" name="q${i}" value="${opt.type}" data-choicetext="${opt.text}" required> ${opt.text}</label>`;
+      });
+      div.innerHTML += `<p style="font-size: 0.9em; color: #666; margin-top: 15px;"><em>探测指向：${q.guide}</em></p>`;
+      form.appendChild(div);
+    });
+
+    // 添加提交按钮
+    const btn = document.createElement("button");
+    btn.textContent = "查看我的灵魂画像";
+    btn.type = "submit";
+    form.appendChild(btn);
+
+    // 提交表单时的异步处理
+    form.addEventListener("submit", async e => {
+      e.preventDefault();
+
+      // 1. 收集答案 (与之前相同)
+      const answers = [];
+      const counts = { "燃烧者": 0, "治愈者": 0, "真我者": 0, "探索者": 0 };
+      let allAnswered = true;
+
+      questions.forEach((q, i) => {
+        const chosen = form.querySelector(`input[name="q${i}"]:checked`);
+        if (chosen) {
+          const choiceText = chosen.getAttribute('data-choicetext');
+          answers.push({ q, type: chosen.value, choiceText: choiceText });
+          counts[chosen.value]++;
+        } else {
+          allAnswered = false;
+        }
+      });
+
+      if (!allAnswered) {
+          const errorMsg = document.createElement('p');
+          errorMsg.textContent = '你还有尚未回答的问题，请检查后再提交。';
+          errorMsg.style.color = 'red';
+          errorMsg.style.textAlign = 'center';
+          form.appendChild(errorMsg);
+          setTimeout(() => { form.removeChild(errorMsg); }, 3000);
+          return;
+      }
+
+      // 2. 显示加载动画 (与之前相同)
+      form.style.display = "none";
+      resultDiv.style.display = "none";
+      loadingIndicator.style.display = "block";
+      window.scrollTo(0, 0);
+
+      // 3. 准备调用 AI 的数据 (与之前相同)
+      let promptForLLM = "请基于以下问卷选择，为我生成一份深入、温暖且富有洞察力的灵魂总结报告。\n\n";
+      answers.forEach((a, index) => {
+          promptForLLM += `问题 ${index + 1}: ${a.q.desc}\n`;
+          promptForLLM += `我的选择: ${a.choiceText} (这代表了 '${a.type}' 特质)\n\n`;
+      });
+      promptForLLM += "总结报告应：\n1. 综合分析我所有的选择，而不只是简单罗列。\n2. 识别我内在的主要驱动力、核心价值观，以及可能存在的内在张力或独特组合。\n3. 语言风格请保持深刻、积极、温暖和启发性。\n4. 请直接输出这份报告正文，不要加“好的，这是您的报告”之类的开头。";
+
+      let llmSummary = "未能获取 AI 总结...";
+
+      // 4. 【重大修改】调用我们自己的 Vercel 后端
+      try {
+        const response = await fetch('/api/generate-summary', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt: promptForLLM }) // 将 prompt 发送给后端
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `服务器错误: ${response.status}`);
+        }
+
+        const result = await response.json();
+        llmSummary = result.summary; // 从我们自己的后端获取总结
+
+      } catch (error) {
+        console.error("调用后端 API 失败:", error);
+        llmSummary = `抱歉，灵魂分析仪暂时出现了一点小故障... 您的基础画像依然可见，但深入总结未能生成。\n\n[错误信息: ${error.message}]`;
+
+      } finally {
+        // 5. 隐藏加载，显示最终结果 (与之前相同)
+        loadingIndicator.style.display = "none";
+        displayResults(counts, answers, llmSummary);
+      }
+    });
+
+    // 封装的显示结果函数 (与之前相同)
+    function displayResults(counts, answers, llmSummary) {
+      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+      const dominant = sorted[0][0];
+      const total = questions.length;
+
+      const personaDesc = {
+        "燃烧者": "你是燃烧者：以行动与激情为核心。你的人生是一次强烈的参与与表达，渴望以热度照亮世界。",
+        "治愈者": "你是治愈者：温柔而坚定，你的存在像一束光，抚慰、理解并连接着他人。",
+        "真我者": "你是真我者：清醒且自洽，拒绝被定义，坚持做自己，在复杂世界中活出一种简洁的真实。",
+        "探索者": "你是探索者：永远的求知者与创造者，你在未知中寻找意义，在突破中感受生命。"
+      };
+
+      const getBarColor = (type) => {
+          switch (type) {
+              case "燃烧者": return "#e57373";
+              case "治愈者": return "#81c784";
+              case "真我者": return "#64b5f6";
+              case "探索者": return "#ffb74d";
+              default: return "#ccc";
+          }
+      };
+
+      const formattedLlmSummary = llmSummary.replace(/\n/g, '<br>');
+
+      resultDiv.innerHTML = `
+        <h2>你的灵魂画像：${dominant}</h2>
+        <p>${personaDesc[dominant]}</p>
+
+        <div class="ai-summary">
+          <h3>专属灵魂总结报告</h3>
+          <p>${formattedLlmSummary}</p>
+        </div>
+
+        <hr style="margin: 30px 0;">
+
+        <h3>你的灵魂构成</h3>
+        <div class="summary-chart">
+           ${sorted.map(([type, count]) => `
+             <div class="chart-bar" style="width: ${count / total * 100}%; background-color: ${getBarColor(type)};" title="${type}: ${count} 票">
+               ${type} (${count}票, ${Math.round(count / total * 100)}%)
+             </div>
+           `).join('')}
+        </div>
+
+        <h3 style="margin-top: 30px;">逐题回顾</h3>
+        ${answers.map(a => `
+          <p class="review-item">
+            <strong>${a.q.title}</strong><br>
+            <span">你的选择 (类型: ${a.type}): ${a.choiceText.substring(a.choiceText.indexOf('.') + 2)}</span>
+          </p>`).join('')}
+      `;
+      resultDiv.style.display = "block";
+    }
+
+  </script>
+</body>
+</html>
